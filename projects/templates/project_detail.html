@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="col-11">
+    <section class="card card-body">
+        <div class="container text-rigth">
+            <div class="row">
+
+<div class="col-3 bg-dark text-light">
+
+
+{% for item in project %}
+    <h3>{{ item.1 }}</h3>
+    <p>{{ item.2 }}</p>
+
+    {% for user in all_users %}
+    {% if user.0 == item.5 %}
+      <p>Created by {{ user.1 }}  on {{ item.3 }}</p>
+    {% endif %}
+    {% endfor %}
+
+    {% if user_id == item.5 %}
+    <button id="editBtn" class="btn btn-light">Edit</button> <br><!-- Button to edit  -->
+
+    <!-- Hidden form for editing -->
+     <br>
+    <form id="editForm" style="display: none;" method="POST">
+        {% csrf_token %}
+        <label for="name" class="form-label">Name</label>
+        <input type="text" name="name" value="{{ item.1 }}" class="form-control"><br>
+        <label for="description" class="form-label">Description</label>
+        <input type="text" name="description" value="{{ item.2 }}" class="form-control"><br>
+        <button type="submit" class="btn btn-light">Save Changes</button><br><br>
+        <p id="cancel" class="btn btn-danger" >Close</p>
+    </form>
+
+    {% for item in project %}
+    <button onclick="confirmDelete('{{ item.0 }}')" class="btn btn-light">Delete project</button>
+   {% endfor %}
+
+    <form id="deleteForm_{{ item.0 }}" style="display: none;" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="projectid" value="{{ item.0 }}">
+    </form>
+    {% endif %}
+
+{% endfor %}
+
+<form action="" id="addusers" method="POST">
+    {% csrf_token %}
+    <hr>
+    <label for="user">Add users to the project:</label><br><br>
+    <select name="user[]" id="user" class="form-select">
+        {% for user in users_select %}
+            <option value="{{ user.0 }}">{{ user.1 }}</option>
+        {% endfor %}
+    </select><br>
+    <button type="submit" class="btn btn-light">Add</button>
+</form>
+<hr>
+<p>Users in project:</p>
+<table class="bg-dark">
+    <tbody>
+{% for users_in in users_in_project %}
+<div class="bg-dark">
+<tr>
+    <td><p class="text-light">{{users_in.1}}</p></td>
+    <td>
+        <form id="delete-user-{{ users_in.0 }}" action="" method="POST" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="del_user_from_pro" value="{{ users_in.0 }}">
+          </form>
+        <button type="button" onclick="confirmDelete_user('{{ users_in.0 }}')" class="btn btn-danger">X</button>
+    </td>
+</div>
+    {% endfor %}
+</tr>
+</tbody>
+</table>
+<br>
+</div>
+
+<div class="col-9">
+<!-- Tasks -->
+{% include 'task.html' %}
+<!-- ************* -->
+</div>
+<script>
+    // Function to display the form when clicking the "Edit" button
+    document.getElementById("editBtn").addEventListener("click", function() {
+        document.getElementById("editForm").style.display = "block";
+    });
+
+    document.getElementById("cancel").addEventListener("click", function() {
+        document.getElementById("editForm").style.display = "none";
+    });
+
+    function confirmDelete(projectId) {
+        if (confirm('Are you sure you want to delete this project?')) {
+            document.getElementById("deleteForm_" + projectId).submit();
+        }
+    }
+
+    function confirmDelete_user(user_id) {
+        if (confirm('Are you sure you want to delete this user from this project?')) {
+            document.getElementById("delete-user-" + user_id).submit();
+        }
+    }
+
+</script>
+</div>
+</div>
+</section>
+</main>
+{% endblock %}
+

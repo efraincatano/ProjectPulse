@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center">Login</h1>
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        {{form.as_p}}
+                        {{error}}
+                        <button class="btn btn-dark">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 d-flex align-items-center">
+            <img src="https://i.pinimg.com/736x/f0/86/0b/f0860bdf0beb9cb8d9ef71f5d4d8a523.jpg" class="img-fluid" alt="Login Image">
+        </div>
+    </div>
+</div>
+
+{% endblock %}

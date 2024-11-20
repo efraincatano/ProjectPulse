@@ -1,0 +1,234 @@
+{% block content %}
+<style>
+.task_container {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.task-card {
+    width: 350px;
+    flex-shrink: 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-right: 10px;
+}
+
+</style>
+<h3>Tasks</h3>
+<hr>
+<form method="POST" id="add_task">
+    {% csrf_token %}
+    <strong>Add task</strong><br>
+    <input type="hidden" name="add_task" value="1">
+    <label for="name_task" class="form-label">Name</label>
+    <input type="text" name="name_task" class="form-control" required>
+    <label for="description_task" class="form-label">Description</label>
+    <textarea id="description_task" name="description_task" class="form-control" required></textarea><br>
+    <button type="submit" onclick="send_add_task()" class="btn btn-dark">Create Task</button>
+</form>
+<hr>
+<div class="task_container">
+    <div class="d-flex overflow-auto" style="white-space: nowrap;">
+    {% for task in tasks %}
+    <div class="task-card p-3 m-2">
+            <strong style="font-size: 25px;">{{ task.1 }}</strong>
+
+            <!-- Delete task-->
+            <form id="delete-task-{{ task.0 }}" action="" method="POST" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="delete_task" value="{{ task.0 }}">
+              </form> 
+            <button type="button" onclick="confirmDeleteTask('{{ task.0 }}')" class="btn btn-outline-danger" style="margin-left: 10px;">Delete</button><br>
+
+            <p>On {{ task.3 }}</p>
+            <p style="border: 1px solid rgb(34, 34, 39); padding: 5px;">To do: {{ task.2 }}</p> 
+
+            <!-- Mark as done-->
+            {% if task.4 %}
+            <p class="btn btn-success">Done on {{task.4}}</p>
+            {% else %}
+            <form id="completed-task-{{ task.0 }}" action="" method="POST" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="completed_task" value="{{ task.0 }}">
+              </form>
+              <button type="button" onclick="confirmTaskComplete('{{ task.0 }}')"  class="btn btn-outline-success">Mark as done</button>
+            {% endif %}
+            <p></p>
+
+            <p>Assigned to: </p> 
+        <table>
+        <tbody>
+            {% for user in user_in_task %}
+            <tr>
+                {% if user.0 == task.0 %}
+                <td><p>{{ user.2 }}</p></td>
+                
+                <td>
+                    <form id="del-user-task-{{ user.1 }}" action="" method="POST" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="del_user_from_task" value="{{ user.1 }}">
+                        <input type="hidden" name="del_user_task_id" value="{{ user.0 }}">
+                      </form>
+                    <button type="button" onclick="confirmDelete_user_task('{{ user.1 }}')" class="btn btn-danger">X</button>
+                </td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+    </tbody>
+    </table>
+
+            <button id="add_userto_task" onclick="show_add_userto_task('{{ task.0 }}')" class="btn btn-dark">Assign users</button>
+
+            <!-- Hidden form for assigning users to the task-->
+            <form action="" id="addusers_task-{{ task.0 }}" method="POST" style="display: none;">
+                {% csrf_token %}
+                <label for="userto_task" class="form-label">Add users to the task:</label>
+                <select name="userto_task[]" id="userto_task" class="form-select">
+                    {% for user in users_in_project %}
+                        {% if user.0 != user_in_task.1 %}
+                            <option value="{{ user.0 }}">{{ user.1 }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="task_id" value="{{ task.0 }}"><br>
+                <button type="submit" class="btn btn-dark">Add</button>
+                <strong onclick="hide_add_userto_task('{{ task.0 }}')" class="btn btn-danger">Close</strong> <p></p>
+            </form>
+                <!-- Hidden form for editing task-->
+                <button id="edit_task" onclick="show_edit_task('{{ task.0 }}')" class="btn btn-dark">Edit Task</button><br>
+                <p></p>
+                <form id="edit_task_Form-{{ task.0 }}" style="display: none;" method="POST">
+                    {% csrf_token %}
+                    <label for="task_name_edit" class="form-label">Name</label>
+                    <input type="text" name="task_name_edit" value="{{ task.1 }}" class="form-control">
+                    <label for="task_desc_edit" class="form-label">Description</label>
+                    <input type="text" name="task_desc_edit" value="{{ task.2 }}" class="form-control"><br>
+
+                    <input type="hidden" name="task_id_edit" value="{{ task.0 }}">
+                    <button type="submit" class="btn btn-dark">Save Changes</button>
+                    <strong onclick="hide_edit_task('{{ task.0 }}')" class="btn btn-danger">Close</strong><br>
+                </form>
+                <!-- Add notes to task -->
+                 <strong>Notes:</strong>
+            <form action="" id="add_note-{{ task.0 }}" method="POST">
+                {% csrf_token %}
+                <label for="note_text" class="form-label">Write a note</label>
+                <textarea name="note_text" id="note_text" rows="2" cols="20" class="form-control" required></textarea><br>
+                <input type="hidden" name="task_id_note" value="{{ task.0 }}">
+                <button type="submit" class="btn btn-dark">Save Note</button>
+            </form>
+            <br>
+        <!-- Showing notes -->
+        <ul>
+            {% for note in notes %} 
+                {% if note.3 == task.0 %}
+                <div style="border: 1px solid rgb(34, 34, 39); padding: 10px; width: 250px; margin-left: -30px;">
+                <li class="list-group-item">
+                    {% for user in all_users %}
+                        {% if user.0 == note.4 %}
+                           Written by {{ user.1 }}
+                        {% endif %}
+                    {% endfor %} On {{ note.2 }}:
+                </li>
+                <li class="list-group-item"><strong>{{ note.1 }}</strong></li>
+                <p></p>
+
+                {% if note.4 == user_id %}
+                    <!-- Hidden form for delete notes-->
+                    <form id="delete-note-{{ note.0 }}" action="" method="POST" style="display: block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_note" value="{{ note.0 }}">
+                    </form> 
+                    <!-- Hidden form for editing notes-->
+                    <form id="edit_note_Form-{{ note.0 }}" style="display: none;" method="POST">
+                        {% csrf_token %}
+                        <input type="text" name="note_text_edit" value="{{ note.1 }}">
+                        <input type="hidden" name="note_id_edit" value="{{ note.0 }}">
+                        <button type="submit" class="btn btn-dark">Save Changes</button>
+                        <strong onclick="hide_edit_note('{{ note.0 }}')" class="btn btn-danger">X</strong>
+                        <p></p>
+                    </form>
+
+                    <button type="button" onclick="confirmDeleteNote('{{ note.0 }}')" class="btn btn-outline-danger">Delete Note</button>
+                    <button id="edit_note" onclick="show_edit_note('{{ note.0 }}')" class="btn btn-outline-dark">Edit Note</button><br>
+
+                    {% endif %}
+                    </div>
+                    <p></p>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+
+
+{% endblock %}
+</div>
+</div>
+<script>
+
+window.onload = function() {
+    document.getElementById("add_task").onsubmit = function(event) {
+    event.preventDefault(); 
+    };
+};
+
+function send_add_task(){
+    document.getElementById("add_task").submit();
+}
+
+function show_add_userto_task(task_id){
+    document.getElementById('addusers_task-' + task_id).style.display = "block";
+}
+
+function hide_add_userto_task(task_id){
+    document.getElementById('addusers_task-' + task_id).style.display = "none";
+}
+
+function show_edit_task(task_id){
+    document.getElementById('edit_task_Form-' + task_id).style.display = "block";
+}
+
+function hide_edit_task(task_id){
+    document.getElementById('edit_task_Form-' + task_id).style.display = "none";
+}
+
+function confirmDeleteTask(task_id) {
+    if (confirm('Are you sure you want to delete this task?')) {
+        document.getElementById("delete-task-" + task_id).submit();
+    }
+}
+
+function confirmTaskComplete(task_id) {
+          if (confirm('Are you sure you want to mark this task as done?')) {
+            document.getElementById('completed-task-' + task_id).submit();
+          }
+        }
+
+function confirmDelete_user_task(user_id) {
+
+    if (confirm('Are you sure you want to delete this user from this task?')) {
+        document.getElementById("del-user-task-" + user_id).submit();
+    }
+    }
+
+//For notes
+function confirmDeleteNote(note_id) {
+    if (confirm('Are you sure you want to delete this note?')) {
+        document.getElementById("delete-note-" + note_id).submit();
+    }
+}
+
+function show_edit_note(note_id){
+    document.getElementById('edit_note_Form-' + note_id).style.display = "block";
+}
+
+function hide_edit_note(note_id){
+    document.getElementById('edit_note_Form-' + note_id).style.display = "none";
+}
+
+</script>
+

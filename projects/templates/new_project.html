@@ -1,0 +1,14 @@
+{% block content %}
+<main class="container py-4">
+        <form method="POST" class="card card-body">
+            {% csrf_token %}
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" name="name" class="form-control" required>
+            <label for="description" class="form-label">Description</label>
+            <textarea id="description" name="description" class="form-control" required></textarea><br>
+            <button type="submit" class="btn btn-dark">Create Project</button>
+            {{error}}
+        </form>
+</main>
+
+{% endblock %}

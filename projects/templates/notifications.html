@@ -1,0 +1,13 @@
+{% block content %}
+<div class="container">
+    <h3>Notificaciones</h3>
+    <ul class="list-group">
+        {% for notification in notifications %}
+            <li class="list-group-item">{{ notification.message }}</li>
+        {% empty %}
+            <li class="list-group-item">No hay notificaciones.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

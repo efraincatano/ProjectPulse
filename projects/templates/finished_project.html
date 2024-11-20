@@ -1,0 +1,76 @@
+{% block content %}
+
+<main class="container py-5">
+    <section class="card card-body">
+{% for item in project %}
+    <h3>{{ item.1 }}</h3>
+    <p>{{ item.2 }}</p>
+
+    {% for user in all_users %}
+    {% if user.0 == item.5 %}
+      <p>Created by {{ user.1 }}  on {{ item.3 }}</p>
+    {% endif %}
+    
+    {% endfor %}
+    <p>Finished on {{ item.4 }}</p>
+{% endfor %}
+<hr>
+
+<h4>Users in project</h4>
+
+{% for user in users_in_project %}
+<p>{{ user.1 }}</p>
+{% endfor %}
+<hr>
+
+<h4>Task</h4>
+
+<ul>
+    {% for task in tasks %}
+        <li>
+            <strong>{{ task.1 }}</strong>
+
+            <p>{{ task.2 }}</p> 
+            {% if task.4 %}
+            <p>{{ task.3 }} / {{ task.4 }}</p>
+            {% else %}
+            <p>{{ task.3 }} / Unfinished</p>
+            {% endif %}
+            <p>Assigned to: </p> 
+
+            {% for user in user_in_task %}
+            <tr>
+                {% if user.0 == task.0 %}
+                <td><p>{{ user.2 }}</p></td>
+                
+                {% endif %}
+            {% endfor %}
+        </tr>
+    </tbody>
+    </table>
+        </li>
+        <!-- Showing notes -->
+         <strong>Notes</strong>
+        <ul>
+            {% for note in notes %} 
+                {% if note.3 == task.0 %}
+                <div style="border: 1px solid rgb(34, 34, 39); padding: 10px; width: 250px; margin-left: -30px;">
+                <li class="list-group-item">{{ note.1 }}</li>
+                <li class="list-group-item">
+                    {% for user in all_users %}
+                        {% if user.0 == note.4 %}
+                           Written by {{ user.1 }} on {{ note.2 }}
+                        {% endif %}
+                    {% endfor %}
+                </li>
+                </div>
+                {% endif %}
+                <p></p>
+            {% endfor %}
+        </ul>
+        <hr>
+    {% endfor %}
+</ul>
+</main>
+</section>
+{% endblock %}
