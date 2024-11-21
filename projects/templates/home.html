@@ -11,8 +11,8 @@
                     <form action="" method="POST">
                         {% csrf_token %}
                         {{form.as_p}}
-                        {{error}}
                         <button class="btn btn-dark">Login</button>
+                        <p class="btn btn-danger">{{error}}</p> 
                     </form>
                 </div>
             </div>
