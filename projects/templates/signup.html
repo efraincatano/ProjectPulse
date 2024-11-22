@@ -10,14 +10,14 @@
                 <h1>Sign Up</h1>
                 {% csrf_token %}
                 <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" aria-describedby="id_username_helptext" required>
+                <input type="text" class="form-control" name="username" id="username" aria-describedby="id_username_helptext" required>
                 <p></p>
                 <label for="password1" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password1" aria-describedby="id_password1_helptext" required>
+                <input type="password" class="form-control" name="password1" id="password1"  required>
                 <p></p>
                 <label for="password2" class="form-label">Password confirmation:</label>
-                <input type="password" class="form-control" id="password2" aria-describedby="id_password2_helptext" required>
-                {{error}}
+                <input type="password" class="form-control" name="password2" id="password2"  required>
+                <p style="color: red;">{{error}}</p> 
                 <p></p>
                 <button class="btn btn-dark">Signup</button>
             </form>
