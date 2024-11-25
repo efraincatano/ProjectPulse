@@ -31,7 +31,7 @@ urlpatterns = [
     path('project_detail/<int:project_id>/', views.project_detail, name='project_detail'),
     path('finished_project/<int:project_id>/', views.finished_project, name='finished_project'),
     path('mark-as-read/', views.mark_as_read, name='mark_as_read'),
-    path('profile/', views.profile, name='profile'),
+    path('profile', views.profile, name='profile'),
 ]
 
 if settings.DEBUG:
