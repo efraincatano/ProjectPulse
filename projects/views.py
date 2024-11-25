@@ -57,7 +57,6 @@ def close_session(request):
     logout(request)
     return redirect('home')
 
-@login_required
 def dashboard(request):
     user_id = str(request.user.id)
     sql = """
