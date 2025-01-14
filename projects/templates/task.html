@@ -16,9 +16,15 @@
     margin-right: 10px;
 }
 
+div {
+  word-wrap: break-word; /* Ajusta automáticamente el texto largo */
+  overflow-wrap: break-word; /* Recomendado para navegadores modernos */
+  white-space: normal; /* Permite que el texto se ajuste a varias líneas */
+}
 </style>
 <h3>Tasks</h3>
 <hr>
+
 <form method="POST" id="add_task">
     {% csrf_token %}
     <strong>Add task</strong><br>
@@ -29,6 +35,7 @@
     <textarea id="description_task" name="description_task" class="form-control" required></textarea><br>
     <button type="submit" onclick="send_add_task()" class="btn btn-dark">Create Task</button>
 </form>
+
 <hr>
 <div class="task_container">
     <div class="d-flex overflow-auto" style="white-space: nowrap;">
@@ -125,7 +132,7 @@
         <ul>
             {% for note in notes %} 
                 {% if note.3 == task.0 %}
-                <div style="border: 1px solid rgb(34, 34, 39); padding: 10px; width: 250px; margin-left: -30px;">
+                <div style="border: 1px solid rgb(34, 34, 39); padding: 10px; width: 275px; margin-left: -30px;">
                 <li class="list-group-item">
                     {% for user in all_users %}
                         {% if user.0 == note.4 %}
@@ -147,6 +154,7 @@
                         {% csrf_token %}
                         <input type="text" name="note_text_edit" value="{{ note.1 }}">
                         <input type="hidden" name="note_id_edit" value="{{ note.0 }}">
+                        <p></p>
                         <button type="submit" class="btn btn-dark">Save Changes</button>
                         <strong onclick="hide_edit_note('{{ note.0 }}')" class="btn btn-danger">X</strong>
                         <p></p>

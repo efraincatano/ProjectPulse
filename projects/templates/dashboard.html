@@ -20,7 +20,7 @@
           {% for project in projects %}
           {% if project.4 == null %}
           <tr>
-            <td><a href="project_detail/{{ project.0 }}" class="btn btn-outline-primary">{{ project.1 }}</a></td>
+            <td><a href="{% url 'project_detail' project.0 %}" class="btn btn-outline-primary">{{ project.1 }}</a></td>
             <td>{{ project.2 }}</td>
             <td>{{ project.3 }}</td>
             <td>
