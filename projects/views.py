@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -11,6 +11,9 @@ import sqlite3
 from .models import Notification
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
+import os
+from django.conf import settings
 
 def home(request):
     if request.method == 'GET':
@@ -306,7 +309,9 @@ def project_detail(request, project_id):
 
             values = (name_task, description_task, startdate, projectid)
             sql_insert_task = "INSERT INTO projects_task (name, description, startdate, proyecto_id) VALUES (?, ?, ?, ?)"
-            if db_sentdata(sql_insert_task, values) == False:
+            task_id = db_sentdata(sql_insert_task, values)
+
+            if task_id == False:
                 print ('Error while creating the task')
             return redirect('project_detail', project_id=project_id)
 
@@ -450,6 +455,8 @@ def db_sentdata(sql, parameters):
             cursor = connection.cursor()
             cursor.execute(sql, parameters)
             connection.commit()
+            if sql.strip().upper().startswith("INSERT"):
+                return cursor.lastrowid
             return True  
     except sqlite3.Error as e:
         print(f"SQLite Error: {e}")
